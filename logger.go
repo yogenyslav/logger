@@ -41,10 +41,10 @@ func New(opts *Opts) *Logger {
 	if opts.IncludeSource {
 		flags = log.LstdFlags | log.Lshortfile
 	}
-	debug := log.New(opts.Output, "DEBUG:", flags)
-	info := log.New(opts.Output, "INFO:", flags)
-	err := log.New(opts.Output, "ERROR:", flags)
-	warn := log.New(opts.Output, "WARN:", flags)
+	debug := log.New(opts.Output, "DEBUG: ", flags)
+	info := log.New(opts.Output, "INFO: ", flags)
+	err := log.New(opts.Output, "ERROR: ", flags)
+	warn := log.New(opts.Output, "WARN: ", flags)
 
 	return &Logger{
 		debugLogger: debug,
