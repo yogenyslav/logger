@@ -12,7 +12,9 @@ const (
 	prefInfo  = "INFO: "
 	prefError = "ERROR: "
 	prefWarn  = "WARN: "
+)
 
+const (
 	LevelDebug = iota
 	LevelInfo
 	LevelError
@@ -39,6 +41,10 @@ type Logger struct {
 	errorLogger *log.Logger
 	warnLogger  *log.Logger
 	opts        *Opts
+}
+
+func init() {
+	SetLevel(DefaultOpts.Level)
 }
 
 func New(opts *Opts) *Logger {
@@ -207,6 +213,7 @@ func SetOutput(out io.Writer) {
 	DefaultOpts.Output = out
 }
 
+// SetIncludeSource is not properly implemented yet
 func SetIncludeSource(include bool) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	DefaultOpts.IncludeSource = include
