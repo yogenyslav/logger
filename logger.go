@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 const (
@@ -14,7 +15,7 @@ const (
 )
 
 var (
-	defaultOpts = &Opts{
+	DefaultOpts = &Opts{
 		Level:         LevelDebug,
 		Output:        os.Stdout,
 		IncludeSource: false,
@@ -119,49 +120,49 @@ func (l *Logger) Panicf(msg string, args ...any) {
 }
 
 func Debug(args ...any) {
-	if defaultOpts.Level <= LevelDebug {
+	if DefaultOpts.Level <= LevelDebug {
 		log.Println(args)
 	}
 }
 
 func Debugf(msg string, args ...any) {
-	if defaultOpts.Level <= LevelDebug {
+	if DefaultOpts.Level <= LevelDebug {
 		log.Printf(msg, args)
 	}
 }
 
 func Info(args ...any) {
-	if defaultOpts.Level <= LevelInfo {
+	if DefaultOpts.Level <= LevelInfo {
 		log.Println(args)
 	}
 }
 
 func Infof(msg string, args ...any) {
-	if defaultOpts.Level <= LevelInfo {
+	if DefaultOpts.Level <= LevelInfo {
 		log.Printf(msg, args)
 	}
 }
 
 func Error(err error) {
-	if defaultOpts.Level <= LevelError {
+	if DefaultOpts.Level <= LevelError {
 		log.Println(err.Error())
 	}
 }
 
 func Errorf(msg string, args ...any) {
-	if defaultOpts.Level <= LevelError {
+	if DefaultOpts.Level <= LevelError {
 		log.Printf(msg, args)
 	}
 }
 
 func Warn(args ...any) {
-	if defaultOpts.Level <= LevelError {
+	if DefaultOpts.Level <= LevelError {
 		log.Println(args)
 	}
 }
 
 func Warnf(msg string, args ...any) {
-	if defaultOpts.Level <= LevelWarn {
+	if DefaultOpts.Level <= LevelWarn {
 		log.Printf(msg, args)
 	}
 }
@@ -183,13 +184,30 @@ func Panicf(msg string, args ...any) {
 }
 
 func SetLevel(level int) {
-	defaultOpts.Level = level
+	DefaultOpts.Level = level
 }
 
 func SetOutput(out io.Writer) {
-	defaultOpts.Output = out
+	DefaultOpts.Output = out
 }
 
 func SetIncludeSource(include bool) {
-	defaultOpts.IncludeSource = include
+	DefaultOpts.IncludeSource = include
+}
+
+func SetFileOutput(path string, logConsole bool) {
+	if strings.HasSuffix(path, "/") {
+		path = path[:len(path)-1]
+	}
+
+	logFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
+	if err != nil {
+		panic(err)
+	}
+	if logConsole {
+		mw := io.MultiWriter(os.Stdout, logFile)
+		DefaultOpts.Output = mw
+		return
+	}
+	DefaultOpts.Output = logFile
 }
