@@ -8,6 +8,11 @@ import (
 )
 
 const (
+	prefDebug = "DEBUG: "
+	prefInfo  = "INFO: "
+	prefError = "ERROR: "
+	prefWarn  = "WARN: "
+
 	LevelDebug = iota
 	LevelInfo
 	LevelError
@@ -41,10 +46,10 @@ func New(opts *Opts) *Logger {
 	if opts.IncludeSource {
 		flags = log.LstdFlags | log.Lshortfile
 	}
-	debug := log.New(opts.Output, "DEBUG: ", flags)
-	info := log.New(opts.Output, "INFO: ", flags)
-	err := log.New(opts.Output, "ERROR: ", flags)
-	warn := log.New(opts.Output, "WARN: ", flags)
+	debug := log.New(opts.Output, prefDebug, flags)
+	info := log.New(opts.Output, prefInfo, flags)
+	err := log.New(opts.Output, prefError, flags)
+	warn := log.New(opts.Output, prefWarn, flags)
 
 	return &Logger{
 		debugLogger: debug,
@@ -184,14 +189,26 @@ func Panicf(msg string, args ...any) {
 }
 
 func SetLevel(level int) {
+	switch level {
+	case LevelDebug:
+		log.SetPrefix(prefDebug)
+	case LevelInfo:
+		log.SetPrefix(prefInfo)
+	case LevelError:
+		log.SetPrefix(prefError)
+	case LevelWarn:
+		log.SetPrefix(prefWarn)
+	}
 	DefaultOpts.Level = level
 }
 
 func SetOutput(out io.Writer) {
+	log.SetOutput(out)
 	DefaultOpts.Output = out
 }
 
 func SetIncludeSource(include bool) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	DefaultOpts.IncludeSource = include
 }
 
@@ -204,10 +221,11 @@ func SetFileOutput(path string, logConsole bool) {
 	if err != nil {
 		panic(err)
 	}
+
+	var out io.Writer
 	if logConsole {
-		mw := io.MultiWriter(os.Stdout, logFile)
-		DefaultOpts.Output = mw
-		return
+		out = io.MultiWriter(os.Stdout, logFile)
 	}
-	DefaultOpts.Output = logFile
+	log.SetOutput(out)
+	DefaultOpts.Output = out
 }
