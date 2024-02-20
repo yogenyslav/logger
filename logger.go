@@ -236,3 +236,18 @@ func SetFileOutput(path string, logConsole bool) {
 	log.SetOutput(out)
 	DefaultOpts.Output = out
 }
+
+func ParseLevel(level string) int {
+	switch strings.ToLower(level) {
+	case "debug":
+		return LevelDebug
+	case "info":
+		return LevelInfo
+	case "error":
+		return LevelError
+	case "warn":
+		return LevelWarn
+	default:
+		panic("unmatched level")
+	}
+}
