@@ -27,6 +27,10 @@ var (
 		Output:        os.Stdout,
 		IncludeSource: false,
 	}
+	debugL = log.New(DefaultOpts.Output, prefDebug, log.LstdFlags)
+	infoL  = log.New(DefaultOpts.Output, prefInfo, log.LstdFlags)
+	errL   = log.New(DefaultOpts.Output, prefError, log.LstdFlags)
+	warnL  = log.New(DefaultOpts.Output, prefWarn, log.LstdFlags)
 )
 
 type Opts struct {
@@ -36,11 +40,7 @@ type Opts struct {
 }
 
 type Logger struct {
-	debugLogger *log.Logger
-	infoLogger  *log.Logger
-	errorLogger *log.Logger
-	warnLogger  *log.Logger
-	opts        *Opts
+	opts *Opts
 }
 
 func init() {
@@ -52,159 +52,145 @@ func New(opts *Opts) *Logger {
 	if opts.IncludeSource {
 		flags = log.LstdFlags | log.Lshortfile
 	}
-	debug := log.New(opts.Output, prefDebug, flags)
-	info := log.New(opts.Output, prefInfo, flags)
-	err := log.New(opts.Output, prefError, flags)
-	warn := log.New(opts.Output, prefWarn, flags)
+	debugL.SetFlags(flags)
+	infoL.SetFlags(flags)
+	errL.SetFlags(flags)
+	warnL.SetFlags(flags)
 
 	return &Logger{
-		debugLogger: debug,
-		infoLogger:  info,
-		errorLogger: err,
-		warnLogger:  warn,
-		opts:        opts,
+		opts: opts,
 	}
 }
 
 func (l *Logger) Debug(args ...any) {
 	if l.opts.Level <= LevelDebug {
-		l.debugLogger.Println(args)
+		debugL.Println(args...)
 	}
 }
 
 func (l *Logger) Debugf(msg string, args ...any) {
 	if l.opts.Level <= LevelDebug {
-		l.debugLogger.Printf(msg, args)
+		debugL.Printf(msg, args...)
 	}
 }
 
 func (l *Logger) Info(args ...any) {
 	if l.opts.Level <= LevelInfo {
-		l.infoLogger.Println(args)
+		infoL.Println(args...)
 	}
 }
 
 func (l *Logger) Infof(msg string, args ...any) {
 	if l.opts.Level <= LevelInfo {
-		l.infoLogger.Printf(msg, args)
+		infoL.Printf(msg, args...)
 	}
 }
 
 func (l *Logger) Error(err error) {
 	if l.opts.Level <= LevelError {
-		l.errorLogger.Println(err.Error())
+		errL.Println(err.Error())
 	}
 }
 
 func (l *Logger) Errorf(msg string, args ...any) {
 	if l.opts.Level <= LevelError {
-		l.errorLogger.Printf(msg, args)
+		errL.Printf(msg, args...)
 	}
 }
 
 func (l *Logger) Warn(args ...any) {
 	if l.opts.Level <= LevelError {
-		l.warnLogger.Println(args)
+		warnL.Println(args...)
 	}
 }
 
 func (l *Logger) Warnf(msg string, args ...any) {
 	if l.opts.Level <= LevelWarn {
-		l.warnLogger.Printf(msg, args)
+		warnL.Printf(msg, args...)
 	}
 }
 
 func (l *Logger) Fatal(args ...any) {
-	l.warnLogger.Fatal(args)
+	log.Fatal(args...)
 }
 
 func (l *Logger) Fatalf(msg string, args ...any) {
-	l.warnLogger.Fatalf(msg, args)
+	log.Fatalf(msg, args...)
 }
 
 func (l *Logger) Panic(args ...any) {
-	l.warnLogger.Panic(args)
+	log.Panic(args...)
 }
 
 func (l *Logger) Panicf(msg string, args ...any) {
-	l.warnLogger.Panicf(msg, args)
+	log.Panicf(msg, args...)
 }
 
 func Debug(args ...any) {
 	if DefaultOpts.Level <= LevelDebug {
-		log.Println(args)
+		debugL.Println(args...)
 	}
 }
 
 func Debugf(msg string, args ...any) {
 	if DefaultOpts.Level <= LevelDebug {
-		log.Printf(msg, args)
+		debugL.Printf(msg, args...)
 	}
 }
 
 func Info(args ...any) {
 	if DefaultOpts.Level <= LevelInfo {
-		log.Println(args)
+		infoL.Println(args...)
 	}
 }
 
 func Infof(msg string, args ...any) {
 	if DefaultOpts.Level <= LevelInfo {
-		log.Printf(msg, args)
+		infoL.Printf(msg, args...)
 	}
 }
 
 func Error(err error) {
 	if DefaultOpts.Level <= LevelError {
-		log.Println(err.Error())
+		errL.Println(err.Error())
 	}
 }
 
 func Errorf(msg string, args ...any) {
 	if DefaultOpts.Level <= LevelError {
-		log.Printf(msg, args)
+		errL.Printf(msg, args...)
 	}
 }
 
 func Warn(args ...any) {
 	if DefaultOpts.Level <= LevelError {
-		log.Println(args)
+		warnL.Println(args...)
 	}
 }
 
 func Warnf(msg string, args ...any) {
 	if DefaultOpts.Level <= LevelWarn {
-		log.Printf(msg, args)
+		warnL.Printf(msg, args...)
 	}
 }
 
 func Fatal(args ...any) {
-	log.Fatal(args)
+	log.Fatal(args...)
 }
 
 func Fatalf(msg string, args ...any) {
-	log.Fatalf(msg, args)
+	log.Fatalf(msg, args...)
 }
 
 func Panic(args ...any) {
-	log.Panic(args)
+	log.Panic(args...)
 }
 
 func Panicf(msg string, args ...any) {
-	log.Panicf(msg, args)
+	log.Panicf(msg, args...)
 }
 
 func SetLevel(level int) {
-	switch level {
-	case LevelDebug:
-		log.SetPrefix(prefDebug)
-	case LevelInfo:
-		log.SetPrefix(prefInfo)
-	case LevelError:
-		log.SetPrefix(prefError)
-	case LevelWarn:
-		log.SetPrefix(prefWarn)
-	}
 	DefaultOpts.Level = level
 }
 
